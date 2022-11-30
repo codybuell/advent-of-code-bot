@@ -35,8 +35,10 @@ SESSION_ID = os.environ.get('SESSION_ID')
 SLACK_WEBHOOK = os.environ.get('SLACK_WEBHOOK')
 LEADERBOARD_ID = os.environ.get('LEADERBOARD_ID')
 
+EVENT_YEAR = str(datetime.datetime.today().year)
+
 LEADERBOARD_URL = "https://adventofcode.com/{}/leaderboard/private/view/{}".format(
-    datetime.datetime.today().year,
+    EVENT_YEAR,
     LEADERBOARD_ID)
 
 log.basicConfig(
@@ -164,10 +166,18 @@ def post_to_slack(message: str, header: str = None):
 def main():
     log.info("Starting run")
 
+    ##############
+    #  validate  #
+    ##############
+
     log.debug("Checking for required environment variables")
     if LEADERBOARD_ID == "" or SESSION_ID == "" or SLACK_WEBHOOK == "" or STATE_FILE == "":
         log.error("Missing required environment variables")
         sys.exit(1)
+
+    ############################
+    #  query adventofcode.com  #
+    ############################
 
     log.info(f"Grabbing private leaderboard ID {LEADERBOARD_ID}")
     r = requests.get(
@@ -179,22 +189,40 @@ def main():
         log.error(f"Error retrieving the leaderboard, received {r.status_code}")
         sys.exit(1)
 
-    log.debug(f"Loading last saved state from {STATE_FILE}")
+    ###################
+    #  read in state  #
+    ###################
+
+    state_file = {}
     if exists(STATE_FILE):
+        log.info(f"Loading last saved state from {STATE_FILE}")
         with open(STATE_FILE) as m:
-            old_state = json.load(m)
+            try:
+                state_file = json.load(m)
+            except json.decoder.JSONDecodeError:
+                log.warning("Unable to decode the state file, starting fresh")
     else:
-        old_state = {}
+        log.info("State file not found, starting fresh")
+
+    #########################
+    #  calculate the bits   #
+    #########################
 
     log.debug("Determining new state from the leaderboard")
+    old_state = state_file[EVENT_YEAR] if EVENT_YEAR in state_file else {}
     new_state = parse_members(r.json()['members'])
 
     log.info("Checking for new stars")
     messages = build_new_star_messages(old_state, new_state)
 
     log.debug(f"Saving the new state to {STATE_FILE}")
+    state_file[EVENT_YEAR] = new_state
     with open(STATE_FILE, 'w') as f:
-        json.dump(new_state, f)
+        json.dump(state_file, f)
+
+    #################
+    #  slack posts  #
+    #################
 
     if len(messages) and "stars" in sys.argv:
         log.info("Announcing new stars on Slack")
