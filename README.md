@@ -57,7 +57,7 @@ export $(grep -v '^#' env | xargs)
 3. Run the container.
 
     ```bash
-    docker run -n advent-of-code-bot --env-file env -d advent-of-code-bot:$(cat VERSION.md)
+    docker run --name advent-of-code-bot --env-file env -d advent-of-code-bot:$(cat VERSION.md)
     ```
 
 4. Stop the contaner.
