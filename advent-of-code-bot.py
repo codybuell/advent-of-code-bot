@@ -24,6 +24,9 @@ from os.path import exists
 ##                                                                            ##
 ################################################################################
 
+slack_bot_icon = ":christmas_tree:"
+slack_bot_username = "Advent of Code Bot"
+
 STATE_FILE = os.environ.get('STATE_FILE')
 SESSION_ID = os.environ.get('SESSION_ID')
 SLACK_WEBHOOK = os.environ.get('SLACK_WEBHOOK')
@@ -112,8 +115,8 @@ def post_to_slack(message: str, header: str = None):
     Post the message to Slack.
     """
     payload = {
-        "icon_emoji": ":christmas_tree:",
-        "username": "Advent of Code Bot",
+        "icon_emoji": slack_bot_icon,
+        "username": slack_bot_username,
     }
 
     if header:
