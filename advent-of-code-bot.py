@@ -14,6 +14,7 @@ import sys
 import json
 import datetime
 import requests
+import logging as log
 
 from os.path import exists
 
@@ -31,6 +32,12 @@ LEADERBOARD_ID = os.environ.get('LEADERBOARD_ID')
 LEADERBOARD_URL = "https://adventofcode.com/{}/leaderboard/private/view/{}".format(
     datetime.datetime.today().year,
     LEADERBOARD_ID)
+
+log.basicConfig(
+    level=log.INFO,
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+)
 
 ################################################################################
 ##                                                                            ##
@@ -73,7 +80,9 @@ def build_new_star_messages(old_state: dict, new_state: dict) -> list:
         old_count = old_state.get(member) if old_state.get(member) else 0
         new_stars = stars - old_count
         if new_stars > 0:
-            messages.append(f":star2: {member} earned {new_stars} new star{'s'[:new_stars^1]}!")
+            announcement = f"{member} earned {new_stars} new star{'s'[:new_stars^1]}!"
+            messages.append(f":star2: {announcement}")
+            log.info(f" - {announcement}")
 
     return messages
 
@@ -128,12 +137,15 @@ def post_to_slack(message: str, header: str = None):
     else:
         payload['text'] = message
 
-    requests.post(
+    r = requests.post(
         SLACK_WEBHOOK,
         data=json.dumps(payload),
         timeout=60,
         headers={"Content-Type": "application/json"}
     )
+    if r.status_code != requests.codes.ok:
+        log.error(f"Error posting to Slack, received {r.status_code}")
+        sys.exit(1)
 
 
 ################################################################################
@@ -144,50 +156,52 @@ def post_to_slack(message: str, header: str = None):
 
 
 def main():
-    # check for required variables
+    log.info("Starting run")
+
+    log.debug("Checking for required environment variables")
     if LEADERBOARD_ID == "" or SESSION_ID == "" or SLACK_WEBHOOK == "" or STATE_FILE == "":
-        print("Please update script variables before running script.\n\
-                See README for details on how to do this.")
+        log.error("Missing required environment variables")
         sys.exit(1)
 
-    # grab current leaderboard
+    log.info(f"Grabbing private leaderboard ID {LEADERBOARD_ID}")
     r = requests.get(
         "{}.json".format(LEADERBOARD_URL),
         timeout=60,
         cookies={"session": SESSION_ID}
     )
-    if r.status_code != requests.codes.ok:  # pylint: disable=no-member
-        print("Error retrieving leaderboard")
+    if r.status_code != requests.codes.ok:
+        log.error(f"Error retrieving the leaderboard, received {r.status_code}")
         sys.exit(1)
 
-    # grab old state
+    log.debug(f"Loading last saved state from {STATE_FILE}")
     if exists(STATE_FILE):
         with open(STATE_FILE) as m:
             old_state = json.load(m)
     else:
         old_state = {}
 
-    # grab new state
+    log.debug("Determining new state from the leaderboard")
     new_state = parse_members(r.json()['members'])
 
-    # build new stars list
+    log.info("Checking for new stars")
     messages = build_new_star_messages(old_state, new_state)
 
-    # save the new state
+    log.debug(f"Saving the new state to {STATE_FILE}")
     with open(STATE_FILE, 'w') as f:
         json.dump(new_state, f)
 
-    # if we have any new stars, announce
     if len(messages):
+        log.info("New stars were earned, announcing on Slack")
         post_to_slack('\n'.join(messages))
 
-    # if leaderboard specified build and post
     if len(sys.argv) > 1 and sys.argv[1] == 'leaderboard':
-        # build ordered list of members
+        log.info("Preparing the leaderboard")
         members = order_members(r.json()["members"])
         message = build_leaderboard_message(members)
+        log.info("Posting the leaderboard to Slack")
         post_to_slack(message, ":star2: Today's Leaderboard :star2:")
 
+    log.info("Run complete")
 
 if __name__ == "__main__":
     main()
