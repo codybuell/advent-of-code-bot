@@ -46,7 +46,7 @@ export $(grep -v '^#' env | xargs)
 
 ### Running in Docker
 
-1. Update the crontab to your desired schedule. Defaults to checking for new stars every 30 minutes and posts the leaderboard at 7am.
+1. Update the crontab to your desired schedule. Defaults to checking for new stars every 30 minutes and posts the leaderboard at 7am. The crontab will also constrain runs to December 1st through 25th, update if needed.
 
 2. Build the container.
 
