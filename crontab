@@ -1,0 +1,31 @@
+########################################
+#  Every 60 Minutes, Leaderboard at 7  #
+########################################
+
+# # new stars every hour except 7
+# 0  0-6,8-23  1-25  12  *  python3 /advent-of-code-bot.py
+
+# # 7:00 leaderboard and new stars
+# 0  7         1-25  12  *  python3 /advent-of-code-bot.py leaderboard
+
+########################################
+#  Every 30 Minutes, Leaderboard at 7  #
+########################################
+
+# new stars every 30 minutes except for 7:00-7:59
+*/30  0-6,8-23  1-25  12  *  python3 /advent-of-code-bot.py
+# new stars 7:30
+30    7         1-25  12  *  python3 /advent-of-code-bot.py
+# 7:00 leaderboard and new stars
+0     7         1-25  12  *  python3 /advent-of-code-bot.py leaderboard
+
+########################################
+#  Every 15 Minutes, Leaderboard at 7  #
+########################################
+
+# # new stars every 15 minutes except for 7:00-7:59
+# */15      0-6,8-23  1-25  12  *  python3 /advent-of-code-bot.py
+# # new stars 7:15, 7:30, 7:45
+# 15-45/15  7         1-25  12  *  python3 /advent-of-code-bot.py
+# # 7:00 leaderboard and new stars
+# 0         7         1-25  12  *  python3 /advent-of-code-bot.py leaderboard

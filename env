@@ -1,0 +1,5 @@
+TZ='America/New_York'
+STATE_FILE='./members.json'
+SESSION_ID='<adventofcode_session_cookie>'
+SLACK_WEBHOOK='<slack_webhook>'
+LEADERBOARD_ID='<leaderboard_id>'

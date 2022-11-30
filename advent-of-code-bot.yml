@@ -1,0 +1,78 @@
+###############
+#  Namespace  #
+###############
+# ---
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: advent-of-code-bot
+
+#######################
+#  Persistent Volume  #
+#######################
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: advent-of-code-bot-claim
+  namespace: advent-of-code-bot
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 100M
+
+################
+#  Deployment  #
+################
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: advent-of-code-bot
+  namespace: advent-of-code-bot
+  labels:
+    app: advent-of-code-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: advent-of-code-bot
+  template:
+    metadata:
+      labels:
+        app: advent-of-code-bot
+    spec:
+      volumes:
+        - name: advent-of-code-bot-volume
+          persistentVolumeClaim:
+            claimName: advent-of-code-bot-claim
+      containers:
+        - name: advent-of-code-bot
+          image: advent-of-code-bot:1.0.0
+          imagePullPolicy: Never
+          volumeMounts:
+            - mountPath: "/data"
+              name: advent-of-code-bot-volume
+          env:
+            - name: TZ
+              value: "America/New_York"
+            - name: STATE_FILE
+              value: "/data/members.json"
+            - name: LEADERBOARD_ID
+              valueFrom:
+                secretKeyRef:
+                  name: advent-of-code-bot-secret
+                  key: leaderboard_id
+            - name: SLACK_WEBHOOK
+              valueFrom:
+                secretKeyRef:
+                  name: advent-of-code-bot-secret
+                  key: slack_webhook
+            - name: SESSION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: advent-of-code-bot-secret
+                  key: session_cookie
