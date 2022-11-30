@@ -41,7 +41,10 @@ Once you have gathered these items update the `env` file accordingly.
 ```bash
 pip3 install -r requirements.txt
 export $(grep -v '^#' env | xargs)
-./advent-of-code-bot.py [leaderboard]
+./advent-of-code-bot.py                     # just grab the data
+./advent-of-code-bot.py stars               # post any newly earned stars to Slack
+./advent-of-code-bot.py leaderboard         # post the leaderboard to Slack
+./advent-of-code-bot.py leaderboard stars   # post new stars and the leaderboard to Slack
 ```
 
 ### Running in Docker

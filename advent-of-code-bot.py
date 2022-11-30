@@ -7,7 +7,10 @@
 # it will also post the current leaderboard as ordered by points, ties broken
 # by stars. Adapted from https://github.com/tomswartz07/AdventOfCodeLeaderboard.
 #
-# ./advent-of-code-bot.py [leaderboard]
+# ./advent-of-code-bot.py                   # just grab the data
+# ./advent-of-code-bot.py stars             # post any newly earned stars
+# ./advent-of-code-bot.py leaderboard       # post the leaderboard
+# ./advent-of-code-bot.py leaderboard stars # post new stars and the leaderboard
 
 import os
 import sys
@@ -193,11 +196,11 @@ def main():
     with open(STATE_FILE, 'w') as f:
         json.dump(new_state, f)
 
-    if len(messages):
-        log.info("New stars were earned, announcing on Slack")
+    if len(messages) and "stars" in sys.argv:
+        log.info("Announcing new stars on Slack")
         post_to_slack('\n'.join(messages))
 
-    if len(sys.argv) > 1 and sys.argv[1] == 'leaderboard':
+    if "leaderboard" in sys.argv:
         log.info("Preparing the leaderboard")
         members = order_members(r.json()["members"])
         message = build_leaderboard_message(members)
@@ -205,6 +208,7 @@ def main():
         post_to_slack(message, ":star2: Today's Leaderboard :star2:")
 
     log.info("Run complete")
+
 
 if __name__ == "__main__":
     main()
