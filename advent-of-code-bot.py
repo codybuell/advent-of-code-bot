@@ -58,7 +58,7 @@ def parse_members(members_json: dict) -> dict:
     """
     Parse Advent-of-Code members dict into a name indexed dict.
     """
-    members = {m['name']: m['stars'] for m in members_json.values()}
+    members = {str(m['id']): {"stars": m["stars"], "name": m["name"]} for m in members_json.values()}
 
     return members
 
@@ -84,11 +84,11 @@ def build_new_star_messages(old_state: dict, new_state: dict) -> list:
     Build a list of messages for folks who have earned at least 1 new star.
     """
     messages = []
-    for member, stars in new_state.items():
-        old_count = old_state.get(member) if old_state.get(member) else 0
-        new_stars = stars - old_count
+    for member, data in new_state.items():
+        old_count = old_state.get(member)['stars'] if old_state.get(member) else 0
+        new_stars = data['stars'] - old_count
         if new_stars > 0:
-            announcement = f"{member} earned {new_stars} new star{'s'[:new_stars^1]}!"
+            announcement = f"{data['name']} earned {new_stars} new star{'s'[:new_stars^1]}!"
             messages.append(f":star2: {announcement}")
             log.info(f" - {announcement}")
 
