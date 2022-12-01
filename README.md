@@ -63,7 +63,7 @@ export $(grep -v '^#' env | xargs)
     docker run --name advent-of-code-bot --env-file env -d advent-of-code-bot:$(cat VERSION.md)
     ```
 
-4. Stop the contaner.
+4. Stop the container.
 
     ```bash
     docker stop advent-of-code-bot
