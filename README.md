@@ -3,6 +3,8 @@ Advent-of-Code Bot
 
 A Slack bot for [Advent of Code](https://adventofcode.com). Adapted from [Tom Swartz's AdventOfCodeLeaderboard](https://github.com/tomswartz07/AdventOfCodeLeaderboard), this bot will post to Slack when members of a private leaderboard have earned new stars. It will also post the leaderboard if wanted, sorting by score, breaking ties by stars.
 
+![](slack-screenshot.png)
+
 Usage
 -----
 
