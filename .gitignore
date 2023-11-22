@@ -18,3 +18,5 @@ Thumbs.db
 
 *__pycache__
 advent-of-code-bot-*.tar
+members.json
+.envrc
