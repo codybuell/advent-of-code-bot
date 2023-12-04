@@ -107,7 +107,7 @@ kubectl exec --stdin --tty -n advent-of-code-bot <POD_ID> -- sh
 # update secrets (you'll need to base64 encode the new values, printf "val" | base64)
 kubectl -n advent-of-code-bot edit secrets advent-of-code-bot-secret
 # cycle the pod to get a new image or load in the new secrets
-kubectl -n advent-of-code-bot delet pod <POD_ID>
+kubectl -n advent-of-code-bot delete pod/<POD_ID>
 # tail the pods logs
 kubectl -n advent-of-code-bot logs -f <POD_ID>
 ```
