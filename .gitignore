@@ -20,3 +20,4 @@ Thumbs.db
 advent-of-code-bot-*.tar
 members.json
 .envrc
+.venv
