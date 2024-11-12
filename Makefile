@@ -5,21 +5,10 @@ VERSION=$(shell cat VERSION.md)
 
 rpi4-container:
 	DOCKER_BUILDKIT=1 docker build --platform linux/arm64 -t advent-of-code-bot:$(VERSION) .
-	# docker save --output advent-of-code-bot-$(VERSION).tar advent-of-code-bot:$(VERSION)
 
 rpi-cluster-deploy: rpi4-container
-	# scp advent-of-code-bot-$(VERSION).tar k3s-a:~/
-	# scp advent-of-code-bot-$(VERSION).tar k3s-b:~/
-	# scp advent-of-code-bot-$(VERSION).tar k3s-c:~/
-	# scp advent-of-code-bot-$(VERSION).tar k3s-d:~/
-	# scp advent-of-code-bot-$(VERSION).tar k3s-e:~/
-	# ssh k3s-a "sudo k3s ctr images import ./advent-of-code-bot-$(VERSION).tar"
-	# ssh k3s-b "sudo k3s ctr images import ./advent-of-code-bot-$(VERSION).tar"
-	# ssh k3s-c "sudo k3s ctr images import ./advent-of-code-bot-$(VERSION).tar"
-	# ssh k3s-d "sudo k3s ctr images import ./advent-of-code-bot-$(VERSION).tar"
-	# ssh k3s-e "sudo k3s ctr images import ./advent-of-code-bot-$(VERSION).tar"
-	docker tag advent-of-code-bot:$(VERSION) registry:5000/advent-of-code-bot:$(VERSION)
-	docker push registry:5000/advent-of-code-bot:$(VERSION)
+	docker tag advent-of-code-bot:$(VERSION) registry.buell.dev:5000/advent-of-code-bot:$(VERSION)
+	docker push registry.buell.dev:5000/advent-of-code-bot:$(VERSION)
 	kubectl create namespace advent-of-code-bot
 	kubectl create secret generic advent-of-code-bot-secret \
 		--namespace advent-of-code-bot \
@@ -29,16 +18,6 @@ rpi-cluster-deploy: rpi4-container
 	kubectl apply -f advent-of-code-bot.yml
 
 rpi-cluster-destroy:
-	# ssh k3s-a "rm -f ~/advent-of-code-bot-$(VERSION).tar"
-	# ssh k3s-b "rm -f ~/advent-of-code-bot-$(VERSION).tar"
-	# ssh k3s-c "rm -f ~/advent-of-code-bot-$(VERSION).tar"
-	# ssh k3s-d "rm -f ~/advent-of-code-bot-$(VERSION).tar"
-	# ssh k3s-e "rm -f ~/advent-of-code-bot-$(VERSION).tar"
-	# ssh k3s-a "sudo k3s ctr images rm docker.io/library/advent-of-code-bot:$(VERSION)"
-	# ssh k3s-b "sudo k3s ctr images rm docker.io/library/advent-of-code-bot:$(VERSION)"
-	# ssh k3s-c "sudo k3s ctr images rm docker.io/library/advent-of-code-bot:$(VERSION)"
-	# ssh k3s-d "sudo k3s ctr images rm docker.io/library/advent-of-code-bot:$(VERSION)"
-	# ssh k3s-e "sudo k3s ctr images rm docker.io/library/advent-of-code-bot:$(VERSION)"
 	kubectl delete namespace advent-of-code-bot
 
 rpi-cluster-logs:
